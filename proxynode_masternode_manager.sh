@@ -1,9 +1,10 @@
 #!/bin/bash
 #
-VERSION="0.2"
+VERSION="0.3"
 # Creator: Eddy Erkel
 # Discord: Eddy#6547
-# Date:    October, 2019
+# Date   : October, 2019
+# Github : https://github.com/EddyErkel/Proxynode_Masternode_Manager
 #
 # Disclamer:
 # This script is provided 'as is', without warranty of any kind.
@@ -19,6 +20,7 @@ VERSION="0.2"
 # By running this script you agree to understand and
 # accept the above terms and conditions.
 #
+#
 # Thanks:
 # Special thanks to the creator(s) of dupmn.
 # This piece of brilliant software makes it very easy to create
@@ -28,6 +30,8 @@ VERSION="0.2"
 # - https://github.com/neo3587/dupmn/wiki/FAQs
 # - https://github.com/neo3587/dupmn/wiki/Commands
 #
+#
+# Donation:
 # Grateful for this work, reusing this work, or in a generous mood?
 # Feel free to send a donation to one of the below addresses.
 # It will be much appreciated.
@@ -40,7 +44,7 @@ VERSION="0.2"
 #
 #
 # To do someday maybe:
-# - remove
+# - remove option
 # - version check via diff
 # - add multiple binaries versions for Ubuntu 16, 18 19
 # 
@@ -58,7 +62,7 @@ VERSION="0.2"
 SCRIPT_FULL=$( readlink -m $( type -p $0 ))         # Script file name including full path
 SCRIPT_DIR=`dirname $SCRIPT_FULL`                   # Script location path
 SCRIPT_NAME=`basename $SCRIPT_FULL`                 # Script file name without path
-SCRIPT_BASE="${script_name%.*}"                     # Script file name without extension
+SCRIPT_BASE="${SCRIPT_NAME%.*}"                     # Script file name without extension
 DATE_TIME="`date +%Y-%m-%d\ %H:%M:%S`"              # Set date and time variable
 FILE_DATE="`date +%Y%m%d_%H%M%S`"                   # Set date and time variable for use with filename
 OSVERSION="*16.04*"                                 # Prefered Ubuntu version
@@ -117,7 +121,8 @@ DONADDR4="LTC: LLqwyRiKiuvxkx76grFmbxEeoChLnxvaKH"
 # Dupmn variables
 DUPMN_NAME="dupmn"
 DUPMN_EXEC="/usr/bin/dupmn"
-DUPMN_CONFIG="${COIN_NAME}.dmn"
+DUPMN_CONFIG="/root/.dupmn/dupmn.conf"
+DUPMN_MNCONFIG="${COIN_NAME}.dmn"
 DUPMN_URL="https://raw.githubusercontent.com/neo3587/dupmn/master/dupmn_install.sh"
 
 
@@ -229,7 +234,7 @@ function display_help() {
 	echo -e "${D}Usage: $SCRIPT_NAME ${C}<option> [parameters]${N}"
 	echo
     echo -e "${D}$SCRIPT_NAME ${C}install           ${D}: Install $NODE_NAME masternode(s)${N}"
-    echo -e "${D}$SCRIPT_NAME ${C}summary           ${D}: Display $NODE_NAME masternode installation summary${N}"
+    echo -e "${D}$SCRIPT_NAME ${C}summary           ${D}: Display $NODE_NAME main masternode installation summary${N}"
     echo -e "${D}$SCRIPT_NAME ${C}help              ${D}: Display this help text${N}"
     echo -e "${D}$SCRIPT_NAME ${C}update            ${D}: Update $NODE_NAME binaries${N}"
     echo -e "${D}$SCRIPT_NAME ${C}bootstrap         ${D}: Download and install $NODE_NAME bootstrap${N}"
@@ -311,7 +316,7 @@ function update_system() {
         echo
         echo -e "${D}Install system tools...${N}"
         apt-get -y install zip unzip 
-        apt-get -y install wget nano htop jq curl
+        apt-get -y install wget nano htop jq curl rsync
         apt-get -y install software-properties-common
         echo
         echo -e "${Y}Finished system update.${N}"
@@ -371,13 +376,13 @@ function install_binaries() {
 
     if [[ $SELECTION == @("Y"|"y"|"") ]]; then
         echo
-        if [ -f $COIN_ZIP ]; then
+        if [ -f $SCRIPT_DIR/$COIN_ZIP ]; then
             COIN_ZIP_DATE=$(date -r $COIN_ZIP '+%Y-%m-%d %H:%M:%S')              # Get binaries file date
             COIN_ZIP_RENAME="$COIN_ZIP.$(date -r $COIN_ZIP +'%Y%m%d_%H%M%S')"   # Append filedate to binaries file
-            mv $COIN_ZIP $COIN_ZIP_RENAME
+            mv $SCRIPT_DIR/$COIN_ZIP $SCRIPT_DIR/$COIN_ZIP_RENAME
         fi
         echo -e "${D}Downloading $COIN_ZIP...${N}"
-        wget -q $COIN_URL
+        wget -q $COIN_URL -P $SCRIPT_DIR
         if [ "$?" -gt "0" ]; then
             echo
             echo -e "${R}Failed to download $COIN_ZIP.${N}"
@@ -385,7 +390,7 @@ function install_binaries() {
         else
             echo
             echo -e "${D}Extracting $COIN_ZIP to $COIN_PATH...${N}"
-            extract $COIN_ZIP $COIN_PATH 
+            extract $SCRIPT_DIR/$COIN_ZIP $COIN_PATH 
             if [ "$?" -gt "0" ]; then
                 echo
                 echo -e "${R}Failed to extract $COIN_ZIP.${N}"
@@ -417,18 +422,22 @@ function update_binaries() {
     echo
     echo -e "${G}UPDATE ${NODE_NAME^^} MASTERNODE BINARIES${N}"
     echo
+    if [ -f $DUPMN_CONFIG  ]; then
+        echo -e "${Y}Please make sure that all additional masternodes are stopped before and restared after the update."        
+        echo
+    fi    
     echo -e "${D}Do you want to download and update $NODE_NAME masternode binaries? [Y/n]${N}"
     read -s -n1 SELECTION
 
     if [[ $SELECTION == @("Y"|"y"|"") ]]; then
         echo
-        if [ -f $COIN_ZIP ]; then
+        if [ -f $SCRIPT_DIR/$COIN_ZIP ]; then
             COIN_ZIP_DATE=$(date -r $COIN_ZIP '+%Y-%m-%d %H:%M:%S')              # Get binaries file date
             COIN_ZIP_RENAME="$COIN_ZIP.$(date -r $COIN_ZIP +'%Y%m%d_%H%M%S')"   # Append filedate to binaries file
-            mv $COIN_ZIP $COIN_ZIP_RENAME
+            mv $SCRIPT_DIR/$COIN_ZIP $SCRIPT_DIR/$COIN_ZIP_RENAME
         fi
         echo -e "${D}Downloading $COIN_ZIP...${N}"
-        wget -q $COIN_URL
+        wget -q $COIN_URL -P $SCRIPT_DIR
         if [ "$?" -gt "0" ]; then
             echo -e "${R}Failed to download $COIN_ZIP.${N}"
             exit 1
@@ -456,7 +465,7 @@ function update_binaries() {
             echo -e "${G}UPDATE BINARIES${N}"
             echo
             echo -e "${D}Extracting $COIN_ZIP to $COIN_PATH...${N}"
-            extract $COIN_ZIP $COIN_PATH
+            extract $SCRIPT_DIR/$COIN_ZIP $COIN_PATH
             if [ "$?" -gt "0" ]; then
                 echo -e "${R}Failed to extract $COIN_ZIP.${N}"
                 exit 1
@@ -499,8 +508,10 @@ function install_fail2ban() {
     echo -e "${D}Do you want to install Fail2Ban? (Recommended) [Y/n]${N}"
     read -s -n1 SELECTION
 
-    if [[ $SELECTION == @("Y"|"y"|"") ]]; then    
+    if [[ $SELECTION == @("Y"|"y"|"") ]]; then  
+        echo
         echo -e "${D}Installing fail2ban...${N}"
+        echo
         apt-get -y install fail2ban
         service fail2ban restart 
         echo
@@ -525,7 +536,7 @@ function create_swapfile() {
 
         if [[ $SELECTION == @("Y"|"y"|"") ]]; then
             echo
-            echo -e "${D}Please enter swap size [2G]"
+            echo -e "${D}Please enter swap size or press enter for 2GB swapfile. [2GB]"
             read SWAP_SIZE
   
             if [[ "$SWAP_SIZE" == "" ]]; then
@@ -650,8 +661,8 @@ function install_bootstrap() {
 
             if [[ $SELECTION == @("Y"|"y"|"") ]]; then
                 echo
-                echo -e "${D}Downloading $CHAIN_SIZE bootstrap file, this may take a few minutes...${N}"
-                wget -q $CHAIN_URL --show-progress
+                echo -e "${D}Downloading bootstrap file ($CHAIN_ZIP), this may take a few minutes...${N}"
+                wget -q $CHAIN_URL -P $COIN_FOLDER --show-progress
                 if [ "$?" -gt "0" ]; then
                     echo
                     echo -e "${R}Failed to download bootstrap file.${N}"
@@ -720,7 +731,7 @@ function install_bootstrap() {
                 echo -e "${D}Deleting file $COIN_FOLDER/peers.dat...${N}"
                 /bin/rm -rf $COIN_FOLDER/peers.dat
             fi             
-            
+            echo
             echo
             echo
             echo -e "${G}EXTRACTING ${NODE_NAME^^} MASTERNODE BOOTSTRAP${N}"
@@ -1039,14 +1050,34 @@ function create_privkey() {
     echo -e "${D}Please enter your private key below, or press enter to generate one:${N}"
     read -e COINKEY
     if [[ -z "$COINKEY" ]]; then
-        echo -e "${Y}Starting masternode daemon...${N}"
+    
+        if [ -f "$COIN_FOLDER/$COIN_PID" ]; then
+            ps -ef | grep $(/bin/cat $COIN_FOLDER/$COIN_PID) | grep $COIN_DAEMON | grep -v grep >/dev/null 2>&1
+            EXITCODE="$?"
+            if [[ "$EXITCODE" -eq "0" ]]; then
+                STARTED="yes"
+                COINKEY=$($COIN_CLI masternode genkey 2>/dev/null)
+                EXITCODE="$?"
+            else
+                STARTED="no"
+                EXITCODE="1" 
+            fi
+        else
+            STARTED="no"
+            EXITCODE="1" 
+        fi
+        
+        ERRCOUNT="0"
+ 
+        if [ "$STARTED" == "no" ]; then
+            echo -e "${Y}Starting masternode daemon...${N}"
+            echo
+            $COIN_DAEMON -daemon >/dev/null 2>&1
+        fi
         echo
         echo -e "${D}Checking every 5 sec. for approximately 2 min. to see if a private key can be generated.${N}"
         echo
 
-        $COIN_DAEMON -daemon >/dev/null 2>&1
-        ERRCOUNT="0"
-        EXITCODE="1"
         /usr/bin/tput sc
 
         while [ "$EXITCODE" -ne "0" ]; do
@@ -1069,20 +1100,23 @@ function create_privkey() {
                 echo -e "${D}Please replace the dummy key with a valid private key after installation.${N}"
                 COINKEY=$KEY_DUMMY
          else
-            echo -e "${D}Masternode private key generated.${N}"        
+            echo -e "${D}Masternode private key generated:${N}"        
             #COINKEY=$($COIN_CLI masternode genkey)
             echo $COINKEY
         fi
         echo
-        echo -e "${D}Stopping masternode daemon...${N}"
-        $COIN_CLI stop >/dev/null 2>&1
+        if [ "$STARTED" == "no" ]; then
+            echo -e "${D}Stopping masternode daemon...${N}"
+            echo
+            $COIN_CLI stop >/dev/null 2>&1
+        fi
     fi
     COINKEY=${COINKEY//[[:space:]]/}    # Removing white spaces
     echo
     echo -e "${Y}Using masternode private key (masternodeprivkey): ${P}$COINKEY${N}"
     echo
-    echo -e "${D}Manually add the above private key to your Windows Wallet (masternode.conf)${N}"
-    echo -e "${D}via Windows Wallet Tools > Open Masternode Configuration File.${N}"
+    echo -e "${D}Manually add the above private key to your Windows Wallet via${N}"
+    echo -e "${D}Windows > Wallet Tools > Open Masternode Configuration File (masternode.conf).${N}"
     echo
 } 
 
@@ -1098,13 +1132,27 @@ function create_blskey() {
     echo
     echo -e "${D}Please enter your bls private key below, or press enter to generate one:${N}"
     read -e COINBLS
-    if [[ -z "$COINBLS" ]]; then
-        echo -e "${Y}Starting masternode daemon...${N}"
+    if [[ -z "$COINKEY" ]]; then
+    
+        if [ -f "$COIN_FOLDER/$COIN_PID" ]; then
+            ps -ef | grep $(/bin/cat $COIN_FOLDER/$COIN_PID) | grep $COIN_DAEMON | grep -v grep >/dev/null 2>&1
+            EXITCODE="$?"
+            if [[ "$EXITCODE" -eq "0" ]]; then
+                STARTED="yes"
+            else
+                STARTED="no"
+            fi
+        else
+            STARTED="no"
+        fi
+    
+        if [ "$STARTED" == "no" ]; then
+            echo -e "${Y}Starting masternode daemon...${N}"
+            echo
+            $COIN_DAEMON -daemon >/dev/null 2>&1
+        fi
         echo
-        echo -e "${D}Checking every 5 sec. for 2 min. to see if a bls private key can be generated.${N}"
-        echo
-
-        $COIN_DAEMON -daemon >/dev/null 2>&1
+        echo -e "${D}Checking every 5 sec. for approximately 2 min. to see if a private key can be generated.${N}"
         ERRCOUNT="0"
         EXITCODE="1"
         /usr/bin/tput sc
@@ -1134,8 +1182,11 @@ function create_blskey() {
             echo "$COINBLS"
         fi
         echo
-        echo -e "${D}Stopping masternode daemon...${N}"
-        $COIN_CLI stop >/dev/null 2>&1
+        if [ "$STARTED" == "no" ]; then
+            echo -e "${D}Stopping masternode daemon...${N}"
+            echo
+            $COIN_CLI stop >/dev/null 2>&1
+        fi
     fi
     
     BLS_SEC_TMP=$(echo "$COINBLS" | grep secret)                            # Grep secret key string
@@ -1381,7 +1432,7 @@ function node_status() {
         echo -e "${Y}Masternode is running.${N}"
         echo
     else
-        echo -e "${Y}Masternode is not running.${N}"
+        echo -e "${R}Masternode is not running.${N}"
         echo
     fi
 }
@@ -1526,48 +1577,52 @@ function install_dupmn () {
 
     if [[ $SELECTION == @("Y"|"y"|"") ]];
     then
-        if [ -f $DUPMN_SH ]; then
+        if [ -f $SCRIPT_DIR/$DUPMN_SH ]; then
             # Rename file if it already exists
             FILE_DATE=$(date -r $DUPMN_SH '+%Y-%m-%d %H:%M:%S')              # Get file date
             FILE_RENAME="$DUPMN_SH.$(date -r $DUPMN_SH +'%Y%m%d_%H%M%S')"    # Append filedate to file
             echo
             echo -e "${D}$DUPMN_SH already exists, renaming to $FILE_RENAME...${N}"
-            mv $DUPMN_SH $FILE_RENAME
+            mv $SCRIPT_DIR/$DUPMN_SH $SCRIPT_DIR/$FILE_RENAME
             echo
         fi    
-        wget --spider $DUPMN_URL
+        wget --spider $DUPMN_URL  >/dev/null 2>&1
         if [ "$?" -ne 0 ]; then
+            echo
             echo -e "${R}Installation file $DUPMN_SH not available for download.${N}"
         else
-            wget $DUPMN_URL
+            echo
+            wget $DUPMN_URL -P $SCRIPT_DIR
             if [ "$?" -ne 0 ]; then
-                echo -e "${R}Failed to download dupmn installation file ${P}$DUPMN_SH${N}."
+                echo -e "${R}Failed to download dupmn installation file ${P}$DUPMN_SH.${N}"
                 echo
             else
-                echo -e "${D}Downloaded dupmn installation file ${P}$DUPMN_SH${N}."
+                echo -e "${Y}Downloaded dupmn installation file ${P}$DUPMN_SH.${N}"
                 chmod +x $SCRIPT_DIR/$DUPMN_SH
                 echo
                 echo -e "${D}Installing dupmn...${N}"
-                ./$DUPMN_SH
+                $SCRIPT_DIR/$DUPMN_SH
+                echo 
+                echo -e "${Y}Finished installing dupmn.${N}"
             fi
         fi
     fi
 }
 
 
-function create_dupmn_config() {
+function create_DUPMN_MNCONFIG() {
     echo
     echo
     echo  
     echo -e "${G}CREATE DUPMN CONFIGURATION FILE${N}"
     echo
-    if [ -f $DUPMN_CONFIG  ]; then
+    if [ -f $SCRIPT_DIR/$DUPMN_MNCONFIG  ]; then
         # Rename file if it already exists
         FILE_DATE=$(date -r $DUPMN_SH '+%Y-%m-%d %H:%M:%S')               # Get file date
-        FILE_RENAME="$DUPMN_CONFIG.$(date -r $DUPMN_CONFIG +'%Y%m%d_%H%M%S')"    # Append filedate to file
+        FILE_RENAME="$DUPMN_MNCONFIG.$(date -r $DUPMN_MNCONFIG +'%Y%m%d_%H%M%S')"    # Append filedate to file
         echo
-        echo -e "${D}$DUPMN_CONFIG already exists, renaming to $FILE_RENAME...${N}"
-        mv $SCRIPT_DIR/$DUPMN_CONFIG $SCRIPT_DIR/$FILE_RENAME
+        echo -e "${D}$DUPMN_MNCONFIG already exists, renaming to $FILE_RENAME...${N}"
+        mv $SCRIPT_DIR/$DUPMN_MNCONFIG $SCRIPT_DIR/$FILE_RENAME
         echo
     fi    
     {
@@ -1578,8 +1633,8 @@ function create_dupmn_config() {
         echo 'COIN_FOLDER="'$COIN_FOLDER'"'
         echo 'COIN_CONFIG="'$COIN_CONFIG'"'
         echo 'COIN_SERVICE="'$COIN_SERVICE'"'
-    } > $SCRIPT_DIR/$DUPMN_CONFIG  
-    echo -e "${Y}Configuration file ${P}$DUPMN_CONFIG ${Y}has been created.${N}"
+    } > $SCRIPT_DIR/$DUPMN_MNCONFIG  
+    echo -e "${Y}Configuration file ${P}$DUPMN_MNCONFIG ${Y}has been created.${N}"
 }  
 
 
@@ -1591,15 +1646,12 @@ function load_dupmn_profile() {
     echo
     echo -e "${D}Loading $COIN_NAME dupmn profile...${N}"
     echo
-    $DUPMN_EXEC profadd $SCRIPT_DIR/$DUPMN_CONFIG $COIN_NAME
+    $DUPMN_EXEC profadd $SCRIPT_DIR/$DUPMN_MNCONFIG $COIN_NAME
     echo
+    echo
+    echo -e "${Y}Finished installing dupmn.${N}"
     echo
     echo -e "${D}Type ${P}dupmn help${D} to show dupmn help contents.${N}"
-    echo
-    echo -e "${D}To install an additional $NODE_NAME masternode using dupmn type one of the following commands:${N}"
-    echo -e "- ${C}$SCRIPT_NAME install ${N}(will create a private key if needed)${N}"
-    echo -e "- ${C}dupmn install $COIN_NAME --bootstrap --privkey=$KEY_DUMMY${N}"
-    echo
     echo
 }
 
@@ -1612,11 +1664,8 @@ function install_additional_node () {
     echo
     echo -e "${D}A $NODE_NAME masternode has already been installed on this system.${N}"
     echo
-    echo -e "${D}If you continue an additial $NODE_NAME masternode will be installed using dupmn.${N}"
-    echo -e "${D}If not yet installed dupmn will be installed and configured.${N}"
-    echo
-    echo -e "${Y}Please be aware that dupmn makes a complete copy of the $COIN_FOLDER directory${N}"
-    echo -e "${Y}including any previously downloaded files (e.g. boostrap $CHAIN_ZIP) in that directory.${N}"
+    echo -e "${D}If you continue, an additial $NODE_NAME masternode will be installed using dupmn.${N}"
+    echo -e "${D}If not yet installed, dupmn will be installed and configured in advance.${N}"
     echo
     echo -e "${D}Do you want to install an additional $NODE_NAME masternode using dupmn? [Y/n]${N}"
     read -s -n1 SELECTION
@@ -1627,20 +1676,22 @@ function install_additional_node () {
         echo -e "${D}Installing additional $NODE_NAME masternode using dupmn...${N}" 
         if [ ! -f $DUPMN_EXEC ]; then
             install_dupmn
-            create_dupmn_config
+            create_DUPMN_MNCONFIG
             load_dupmn_profile
         fi
        
-        echo
         if [ -f $COIN_FOLDER/$CHAIN_ZIP ]; then
             CHAIN_DATE=$(date -r $COIN_FOLDER/$CHAIN_ZIP '+%Y-%m-%d %H:%M:%S')      # Get bootstrap file date
             CHAIN_SIZE=$(ls -lh $COIN_FOLDER/$CHAIN_ZIP | awk -F " " {'print $5'})  # Get bootstrap file size
-            echo 
-            echo -e "${D}A previously downloaded boostrap file was found on disk, dated $CHAIN_DATE.${N}"
-            ls -lh $COIN_FOLDER/$CHAIN_ZIP
-
             echo
-            echo -e "${D}Would you like to ${C}D${D}elete the file or ${C}Q${D}uit? [d/Q]"
+            echo
+            echo -e "${D}A previously downloaded boostrap file was found in directory $COIN_FOLDER:${N}"
+            ls -lh $COIN_FOLDER/$CHAIN_ZIP
+            echo
+            echo -e "${Y}Please be aware that dupmn makes a complete copy of directory $COIN_FOLDER${N}"
+            echo -e "${Y}including any previously downloaded files in that directory (e.g. boostrap $CHAIN_ZIP).${N}"
+            echo
+            echo -e "${D}Would you like to ${C}D${D}elete the file, ${C}C${D}ontinue or ${C}Q${D}uit? [d/c/Q]"
             read -s -n1 SELECTION
             
             case $SELECTION in
@@ -1649,6 +1700,10 @@ function install_additional_node () {
                     echo -e "${D}Deleting bootstrap file from disk...${N}"
                     rm $COIN_FOLDER/$CHAIN_ZIP
                     ;;
+                C|c)
+                    echo
+                    echo -e "${D}Continuing...${N}"
+                    ;;                    
                 Q|q|*)
                     echo
                     echo -e "${Y}Additional $NODE_NAME masternode installation aborted.${N}"
@@ -1657,11 +1712,27 @@ function install_additional_node () {
             esac
         fi
         create_privkey
-        dupmn install $COIN_NAME --bootstrap --privkey=$COINKEY
+        echo
+        echo
+        echo
+        echo -e "${G}INSTALL ADDITIONAL MASTERNODE USING DUPMN${N}"
+        echo
+        echo -e "${C}dupmn install $COIN_NAME --bootstrap --privkey=$COINKEY${N}"
+        echo
+        dupmn install $COIN_NAME --privkey=$COINKEY #--bootstrap --privkey=$COINKEY
+        if [[ "$?" -eq "1" ]]; then
+            echo
+            echo -e "${Y}Finished installing additional $NODE_NAME masternode.${N}" 
+            echo
+            echo -e "${D}Use dupmn to manage your additional masternodes.${N}"
+            echo
+            echo -e "${D}Type ${P}dupmn help${D} to show dupmn help contents.${N}"
+        fi
     else
         echo
         echo -e "${Y}Additional $NODE_NAME masternode installation aborted.${N}"  
     fi
+    echo
 }
             
 
@@ -1680,7 +1751,7 @@ function installation_summary() {
         fi
     fi
     echo  
-    echo -e "${G}INSTALLATION SUMMARY${N}"
+    echo -e "${G}MAIN MASTERNODE INSTALLATION SUMMARY${N}"
     echo 
     echo -e "${D}Configuration files:${N}"    
     echo -e "${D}- Systemd Unit file         : ${P}/etc/systemd/system/$COIN_SERVICE${N}"
@@ -1692,7 +1763,7 @@ function installation_summary() {
     echo -e "${D}- masternodeaddr            : ${P}$EXT_IP:$COIN_PORT${N}"    
     echo -e "${D}- masternodeprivkey         : ${P}$COINKEY${N}"
     echo
-    echo -e "${D}Commands to manage your masternode:${N}"   
+    echo -e "${D}Commands to manage your main masternode:${N}"   
     echo -e "${D}- Show service status       : ${C}systemctl status $COIN_SERVICE${N}"
     echo -e "${D}- Start service             : ${C}systemctl start $COIN_SERVICE${N}"
     echo -e "${D}- Stop service              : ${C}systemctl stop $COIN_SERVICE${N}"
@@ -1700,7 +1771,7 @@ function installation_summary() {
     echo -e "${D}- Show masternode blockcount: ${C}$COIN_CLI getblockcount${N}"
     echo -e "${D}- Show masternode info      : ${C}$COIN_CLI getinfo${N}"
     echo
-    echo -e "${D}Commands to manage your masternode via this script:${N}"     
+    echo -e "${D}Commands to manage your main masternode via this script:${N}"     
     echo -e "${D}- Show help                 : ${C}$SCRIPT_NAME help${N}"
     echo -e "${D}- Show masternode status    : ${C}$SCRIPT_NAME status${N}" 
     echo -e "${D}- Monitor masternode status : ${C}$SCRIPT_NAME monitor${N}"
@@ -1712,12 +1783,16 @@ function installation_summary() {
         echo -e "${D}Commands to manage additional masternodes with dupmn:${N}"   
         echo -e "${D}- Show dupmn help           : ${C}$DUPMN_NAME help${N}" 
         echo -e "${D}- systemctl to all nodes    : ${C}$DUPMN_NAME systemctlall $COIN_NAME <command>${N}"
+        echo -e "${D}- Start all masternodes     : ${C}$DUPMN_NAME systemctlall $COIN_NAME start${N}"
+        echo -e "${D}- Stop all masternodes      : ${C}$DUPMN_NAME systemctlall $COIN_NAME stop${N}"
+        echo -e "${D}- Status for all mn services: ${C}$DUPMN_NAME systemctlall $COIN_NAME status${N}"
+        echo -e "${D}- Show all masternode status: ${C}$DUPMN_NAME prx-cli-all masternode status${N}"
         echo
     fi
     echo -e "${D}${NODE_NAME^} related websites:${N}"
     if [ ! -z "$WWW_MAIN"  ]; then echo -e "${D}- Main website              : ${Y}$WWW_MAIN${N}" ; fi
-    if [ ! -z "$WWW_GHUB"  ]; then echo -e "${D}- Github website            : ${Y}$WWW_GHUB${N}" ; fi
     if [ ! -z "$WWW_EXPL"  ]; then echo -e "${D}- Explorer website          : ${Y}$WWW_EXPL${N}" ; fi
+    if [ ! -z "$WWW_GHUB"  ]; then echo -e "${D}- Github website            : ${Y}$WWW_GHUB${N}" ; fi
     if [ ! -z "$WWW_MNO"   ]; then echo -e "${D}- Masternode Online website : ${Y}$WWW_MNO${N}"  ; fi
     if [ ! -z "$WWW_CMC"   ]; then echo -e "${D}- CoinMarkedCap website     : ${Y}$WWW_CMC${N}"  ; fi   
     if [ ! -z "$WWW_DUPMN" ]; then echo -e "${D}- Dupmn wiki                : ${Y}$WWW_DUPMN${N}"; fi 
@@ -1729,6 +1804,9 @@ function installation_summary() {
         if [ ! -z "$WWW_DUPMN3"  ]; then echo -e "${D}- Dupmn wiki commands       : ${Y}$WWW_DUPMN3${N}" ; fi 
         echo
     fi
+    echo
+    echo -e "${D}Use ${C}$SCRIPT_NAME summary${D} to show this summary whenever needed.${N}"
+    echo
 }
 
 
@@ -1770,11 +1848,13 @@ function extract() {
    
     case $FILE_EXT in
         zip)
-            if [ $FILE == $COIN_ZIP ]; then
-                COIN_ZIPDIR=${COIN_ZIPDIR#/}                            # Remove optional leading slash (/...)
-                COIN_ZIPDIR=${COIN_ZIPDIR%/}                            # Remove optional trailing slash (.../)
-                unzip -o -j $FILE $COIN_ZIPDIR/$COIN_DAEMON  -d $DIR     # Extract Deamon file
-                unzip -o -j $FILE $COIN_ZIPDIR/$COIN_CLI -d $DIR         # Extract CLI file
+            if [ "${FILE##*/}" == "$COIN_ZIP" ]; then
+                DAEMON_PATH=$(unzip -l $COIN_ZIP | grep $COIN_DAEMON | awk '{ print $4 }') # Get file path for Daemon
+                CLI_PATH=$(unzip -l $COIN_ZIP | grep $COIN_CLI | awk '{ print $4 }')       # Get file path for CLI
+                unzip -o -j $FILE $DAEMON_PATH -d $DIR                                     # Extract Deamon file
+                unzip -o -j $FILE $CLI_PATH -d $DIR                                        # Extract CLI file
+                #unzip -o -j $FILE $COIN_DAEMON -d $DIR                                      # Extract Deamon file
+                #unzip -o -j $FILE $COIN_CLI -d $DIR                                         # Extract CLI file
             else
                 unzip $FILE -d $DIR
             fi
@@ -1786,7 +1866,14 @@ function extract() {
             tar xvfz $FILE -C $DIR
             ;;
         gz)
-            tar xvfz $FILE -C $DIR
+            #if [ $FILE == $COIN_ZIP ]; then        
+            #    DAEMON_PATH=$(tar -tvf $COIN_ZIP | grep $COIN_DAEMON | awk '{ print $6 }')  # Get file path for Daemon
+            #    CLI_PATH=$(tar -tvf $COIN_ZIP | grep $COIN_CLI | awk '{ print $6 }')        # Get file path for CLI        
+            #    tar xvfz $FILE $DAEMON_PATH -O > $DIR/$COIN_DAEMON
+            #    tar xvfz $FILE $DAEMON_PATH -O > $DIR/$COIN_CLI
+            #else
+                tar xvfz $FILE -C $DIR
+            #fi
             ;;
     esac
 }     
@@ -1860,7 +1947,7 @@ fi
 
 if [[ $ARG1 == "dupmn" ]]; then
     install_dupmn
-    create_dupmn_config
+    create_DUPMN_MNCONFIG
     load_dupmn_profile
 fi
 
