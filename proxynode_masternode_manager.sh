@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-VERSION="0.4b"
+VERSION="0.4c"
 # Creator: Eddy Erkel
 # Discord: Eddy#6547
 # Date   : October, 2019
@@ -60,14 +60,15 @@ VERSION="0.4b"
 
 # Script variables
 if [ -f /bin/readlink ]; then
-    SCRIPT_FULL=$(readlink -nf $0)                  # Script file name including full path
-    SCRIPT_DIR=$(dirname $SCRIPT_FULL)              # Script location path
-    SCRIPT_NAME=$(basename $SCRIPT_FULL)            # Script file name without path
+    SCRIPT_FULL=$(readlink -nf $0)                  # Script real file name (not symbolic link) including full path
 else
     SCRIPT_NAME="$(basename "$0")"                  # Script file name
     SCRIPT_DIR="$(cd $(dirname "$0") && pwd)"       # Script location path
-    SCRIPT_FULL="$SCRIPT_DIR/$SCRIPT_NAME"          # Script file name including full path
+    SCRIPT_FULL="$SCRIPT_DIR/$SCRIPT_NAME"          # Script file name including full path (could be symbolic link)
+    SCRIPT_FULL="$(stat $SCRIPT_FULL | grep File | sed 's/.*> //' | sed -e "s/'//g" | sed 's/ *File: *//')" # (get real filename)
 fi
+SCRIPT_DIR=$(dirname $SCRIPT_FULL)              # Script location path
+SCRIPT_NAME=$(basename $SCRIPT_FULL)            # Script file name without path
 SCRIPT_BASE="${SCRIPT_NAME%.*}"                     # Script file name without extension
 SCRIPT_EXT="${SCRIPT_NAME##*.}"                     # Script file extension
 DATE_TIME="`date +%Y-%m-%d\ %H:%M:%S`"              # Set date and time variable
