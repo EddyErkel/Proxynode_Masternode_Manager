@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-VERSION="0.4a"
+VERSION="0.4b"
 # Creator: Eddy Erkel
 # Discord: Eddy#6547
 # Date   : October, 2019
@@ -59,20 +59,21 @@ VERSION="0.4a"
 
 
 # Script variables
-SCRIPT_FULL=$(readlink -nf $0)                      # Script file name including full path
-SCRIPT_DIR=`dirname $SCRIPT_FULL`                   # Script location path
-SCRIPT_NAME=`basename $SCRIPT_FULL`                 # Script file name without path
-#SCRIPT_NAME="$(basename "$0")"                     # Script file name
-#SCRIPT_DIR="$(cd $(dirname "$0") && pwd)"          # Script location path
-#SCRIPT_FULL="$SCRIPT_DIR/$SCRIPT_NAME"             # Script file name including full path
+if [ -f /bin/readlink ]; then
+    SCRIPT_FULL=$(readlink -nf $0)                  # Script file name including full path
+    SCRIPT_DIR=$(dirname $SCRIPT_FULL)              # Script location path
+    SCRIPT_NAME=$(basename $SCRIPT_FULL)            # Script file name without path
+else
+    SCRIPT_NAME="$(basename "$0")"                  # Script file name
+    SCRIPT_DIR="$(cd $(dirname "$0") && pwd)"       # Script location path
+    SCRIPT_FULL="$SCRIPT_DIR/$SCRIPT_NAME"          # Script file name including full path
+fi
 SCRIPT_BASE="${SCRIPT_NAME%.*}"                     # Script file name without extension
 SCRIPT_EXT="${SCRIPT_NAME##*.}"                     # Script file extension
-
-
 DATE_TIME="`date +%Y-%m-%d\ %H:%M:%S`"              # Set date and time variable
 FILE_DATE="`date +%Y%m%d_%H%M%S`"                   # Set date and time variable for use with filename
 OSVERSION="*16.04*"                                 # Prefered Ubuntu version
-ARG1=$(echo $1 | sed -r 's/[-]//gi')                # Remove '-' characters from first argument
+ARG1=$(echo $1 | sed -r 's/[-]//gi')                # Removes '-' characters from first argument
 ARG2=$2                                             # Second argument
 ARG3=$3                                             # Third argument
 
