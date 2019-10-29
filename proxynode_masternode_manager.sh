@@ -40,7 +40,7 @@
 
 
 # Script version
-VERSION=0.5b
+VERSION=0.5c
 
 
 # Donation addresses
@@ -1944,6 +1944,7 @@ if [[ $ARG1 == "install" ]]; then
         install_bootstrap
         node_start
         node_status
+        clear_screen
         display_logo
         installation_summary
     else
