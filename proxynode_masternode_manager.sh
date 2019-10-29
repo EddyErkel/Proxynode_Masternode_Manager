@@ -5,7 +5,7 @@
 # Creator: Eddy Erkel                                                                                   #
 # Discord: Eddy#6547                                                                                    #
 # Date   : October, 2019                                                                                #
-# Github : https://github.com/EddyErkel/                                                                #
+# Github : https://github.com/EddyErkel/Proxynode_Masternode_Manager                                    #
 #                                                                                                       #
 # Disclamer:                                                                                            #
 # This script is provided 'as is', without warranty of any kind.                                        #
@@ -40,7 +40,7 @@
 
 
 # Script version
-VERSION=0.5a
+VERSION=0.5b
 
 
 # Donation addresses
