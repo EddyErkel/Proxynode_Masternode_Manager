@@ -1,82 +1,61 @@
 #!/bin/bash
-#
-VERSION="0.4c"
-# Creator: Eddy Erkel
-# Discord: Eddy#6547
-# Date   : October, 2019
-# Github : https://github.com/EddyErkel/Proxynode_Masternode_Manager
-#
-# Disclamer:
-# This script is provided 'as is', without warranty of any kind.
-# Be aware that this script is run at your own risk and while this script
-# has been written with the intention of minimising the potential for
-# unintended consequences, the owners, providers and contributers
-# can not be held responsible for any misuse or script problems.
-# The owners, providers and contributers assume no liability for any
-# financial loss, loss in revenue, loss of data, damages, direct or
-# consequential that may result from the use of this script and
-# the software that is downloaded and installed with it.
-#
-# By running this script you agree to understand and
-# accept the above terms and conditions.
-#
-#
-# Thanks:
-# Special thanks to the creator(s) of dupmn.
-# This piece of brilliant software makes it very easy to create
-# and manage additional masternodes on the same system.
-# Please visit dupmn on github for more information about dupmn:
-# - https://github.com/neo3587/dupmn
-# - https://github.com/neo3587/dupmn/wiki/FAQs
-# - https://github.com/neo3587/dupmn/wiki/Commands
-#
-#
-# Donation:
+#########################################################################################################
+#                                    MASTERNODE MANAGER                                                 #
+#########################################################################################################
+# Creator: Eddy Erkel                                                                                   #
+# Discord: Eddy#6547                                                                                    #
+# Date   : October, 2019                                                                                #
+# Github : https://github.com/EddyErkel/Proxynode_Masternode_Manager                                    #
+#                                                                                                       #
+# Disclamer:                                                                                            #
+# This script is provided 'as is', without warranty of any kind.                                        #
+# Be aware that this script is run at your own risk and while this script                               #
+# has been written with the intention of minimizing the potential for                                   #
+# unintended consequences, the owners, providers and contributors                                       #
+# can not be held responsible for any misuse or script problems.                                        #
+# The owners, providers and contributors assume no liability for any                                    #
+# financial loss, loss in revenue, loss of data, damages, direct or                                     #
+# consequential that may result from the use of this script and                                         #
+# the software that is downloaded and installed with it.                                                #
+#                                                                                                       #
+# By running this script you agree to understand and                                                    #
+# accept the above terms and conditions.                                                                #
+#                                                                                                       #
+# Thanks:                                                                                               #
+# Special thanks to the creator(s) of dupmn.                                                            #
+# This piece of brilliant software makes it very easy to create                                         #
+# and manage additional masternodes on the same system.                                                 #
+# Please visit dupmn on github for more information about dupmn:                                        #
+# https://github.com/neo3587/dupmn                                                                      #
+#                                                                                                       #
+# To do someday maybe:                                                                                  #
+# - add alias to mn.conf file                                                                           #
+# - remove option                                                                                       #
+# - version check via diff                                                                              #
+# - add multiple binaries versions for Ubuntu 16, 18 19                                                 #
+#                                                                                                       #
+#########################################################################################################
+#                                    MASTERNODE MANAGER                                                 #
+#########################################################################################################
+
+
+# Script version
+VERSION=0.5
+
+
+# Donation addresses
 # Grateful for this work, reusing this work, or in a generous mood?
 # Feel free to send a donation to one of the below addresses.
 # It will be much appreciated.
-#
-# PRX: PJgbAJgKKq9HVX6dPAnvSeH4awJKUTAxYY
-# BTC: 18JNWyGhfAmhkWs7jzuuHn54jEZRPj81Jx
-# ETH: 0x067e8b995f7dbaf32081bc32927f6fac29b32055
-# LTC: LLqwyRiKiuvxkx76grFmbxEeoChLnxvaKH
-#
-#
-#
-# To do someday maybe:
-# - remove option
-# - version check via diff
-# - add multiple binaries versions for Ubuntu 16, 18 19
-# 
-#
-# Exit codes: 
-# error 28: {"code":-28,"message":"Verifying wallet..."}
-# error 28: {"code":-28,"message":"Loading block index..."}
-# error  1: {"code":-1,"message":"Masternode not found in the list of available masternodes. Current status: Node just started, not yet activated"}
-# error  1: {"code":-1,"message":"Masternode not found in the list of available masternodes. Current status: Not capable masternode: Hot node, waiting for remote activation."}
-# error  1: couldn't connect to server
-# error  1: no response from server
+DONADDR1="PRX: PJgbAJgKKq9HVX6dPAnvSeH4awJKUTAxYY"
+DONADDR2="BTC: 18JNWyGhfAmhkWs7jzuuHn54jEZRPj81Jx"
+DONADDR3="ETH: 0x067e8b995f7dbaf32081bc32927f6fac29b32055"
+DONADDR4="LTC: LLqwyRiKiuvxkx76grFmbxEeoChLnxvaKH"
 
 
-# Script variables
-if [ -f /bin/readlink ]; then
-    SCRIPT_FULL=$(readlink -nf $0)                  # Script real file name (not symbolic link) including full path
-else
-    SCRIPT_NAME="$(basename "$0")"                  # Script file name
-    SCRIPT_DIR="$(cd $(dirname "$0") && pwd)"       # Script location path
-    SCRIPT_FULL="$SCRIPT_DIR/$SCRIPT_NAME"          # Script file name including full path (could be symbolic link)
-    SCRIPT_FULL="$(stat $SCRIPT_FULL | grep File | sed 's/.*> //' | sed -e "s/'//g" | sed 's/ *File: *//')" # (get real filename)
-fi
-SCRIPT_DIR=$(dirname $SCRIPT_FULL)              # Script location path
-SCRIPT_NAME=$(basename $SCRIPT_FULL)            # Script file name without path
-SCRIPT_BASE="${SCRIPT_NAME%.*}"                     # Script file name without extension
-SCRIPT_EXT="${SCRIPT_NAME##*.}"                     # Script file extension
-DATE_TIME="`date +%Y-%m-%d\ %H:%M:%S`"              # Set date and time variable
-FILE_DATE="`date +%Y%m%d_%H%M%S`"                   # Set date and time variable for use with filename
-OSVERSION="*16.04*"                                 # Prefered Ubuntu version
-ARG1=$(echo $1 | sed -r 's/[-]//gi')                # Removes '-' characters from first argument
-ARG2=$2                                             # Second argument
-ARG3=$3                                             # Third argument
+#########################################################################################################
+#                                    MASTERNODE SPECIFIC VARIABLES                                      #
+#########################################################################################################
 
 
 # Masternode variables
@@ -93,36 +72,29 @@ COIN_SERVICE="proxynode.service"
 COIN_PORT="12195"
 RPC_PORT="12196"
 KEY_DUMMY="ReplaceThisDummyPrivateKeyByAManuallyGeneratedPrivateKey"                                # Dummy private key, will be assigned if a private key can not be generated.
-#BLS_DUMMY="ReplaceThisDummyPrivateKeyByAManuallyGeneratedPrivateKey"                               # Dummy bls private key, will be assigned if a bls private key can not be generated. 
-     
-     
-# Binaries
+OSVERSIONS=(16.04 18.04)                                                                            # Preferred Ubuntu OS version(s) (separate by spaces, e.g. 16.04 18.04)     
+
+
+# Masternode binaries URL
 COIN_URL="https://github.com/ProxyNode/proxynode/releases/download/v2.1.0/prx-Linux-v2.1.0.zip"     # Binaries compressed file. 
 COIN_ZIPDIR="/Linux/"                                                                               # Path inside the zipfile that contains the binaries.
 
 
-# Bootstrap
+# Masternode Bootstrap URL
 CHAIN_URL="http://sync.proxynode.network/prx.zip"                                                   # Bootstrap compressed file containing chain directory's.
-CHAIN_DATA="blocks/ chainstate/ peers.dat"                                                          # Folders and files used for creating bootstrap.zip (usually blocks/ chainstate/ peers.dat). 
+CHAIN_DATA="blocks chainstate peers.dat"                                                            # Folders and files used for creating bootstrap.zip (separate by spaces, usually blocks chainstate peers.dat). 
+                                                                                                    # These folders and files will also be deleted when installing bootstrap.  
 
-
-# Addnodes
+# Masternode Addnodes URL
 NODES_URL="https://raw.githubusercontent.com/ProxyNode/proxynode/master/addnodes.txt"               # Addnodes.txt file.
 
 
-# Website URLs (shown at installation summary)
+# Masternode related website URLs (shown at installation summary)
 WWW_MAIN="http://proxynode.network/"                        # Main website URL
 WWW_GHUB="https://github.com/ProxyNode/proxynode/releases"  # Github URL
 WWW_EXPL="http://explorer.proxynode.network/"               # Explorer URL
 WWW_MNO="https://masternodes.online/currencies/PRX/"        # Masternodes.Online URL
 WWW_CMC="https://coinmarketcap.com/currencies/proxynode/"   # CoinMarketCap URL
-
-
-# Donation addresses
-DONADDR1="PRX: PJgbAJgKKq9HVX6dPAnvSeH4awJKUTAxYY"
-DONADDR2="BTC: 18JNWyGhfAmhkWs7jzuuHn54jEZRPj81Jx"
-DONADDR3="ETH: 0x067e8b995f7dbaf32081bc32927f6fac29b32055"
-DONADDR4="LTC: LLqwyRiKiuvxkx76grFmbxEeoChLnxvaKH"
 
 
 # Dupmn variables
@@ -133,23 +105,11 @@ DUPMN_MNCONF="/root/.dupmn/${COIN_NAME}.dmn"
 DUPMN_URL="https://raw.githubusercontent.com/neo3587/dupmn/master/dupmn_install.sh"
 
 
-# Dupmn website URLs (shown at installation summary)
+# Dupmn related website URLs (shown at installation summary)
 WWW_DUPMN="https://github.com/neo3587/dupmn"
 WWW_DUPMN1="https://github.com/neo3587/dupmn/wiki"
 WWW_DUPMN2="https://github.com/neo3587/dupmn/wiki/FAQs"
 WWW_DUPMN3="https://github.com/neo3587/dupmn/wiki/Commands"
-
-
-# Color config
-R='\033[0;31m'    # Red
-G='\033[0;32m'    # Green
-Y='\033[0;33m'    # Yellow
-B='\033[0;34m'    # Blue
-P='\033[0;35m'    # Purple
-C='\033[0;36m'    # Cyan
-W='\033[0;97m'    # White
-D='\033[0;37m'    # Grey (Default)
-N='\033[0m'       # No Color
 
 
 # Get file names from URLs
@@ -159,25 +119,15 @@ NODES_TXT=$(echo $NODES_URL | awk -F'/' '{print $NF}')
 DUPMN_SH=$(echo $DUPMN_URL | awk -F'/' '{print $NF}')
 
 
-# Set current directory variable
-CURRENT_DIR=$(pwd)
+#########################################################################################################
+#                                    MASTERNODE SPECIFIC FUNCTIONS                                      #
+#########################################################################################################
 
 
-# Change to script folder
-cd $SCRIPT_DIR >/dev/null 2>&1 
-
-
-# Clear screen
-function clear_screen() {
-    clear
-}
-
-
-# Display logo (created with 'jp2a logo.jpg --width=80')
-# Display FIGlet using http://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=%0A
+# Display FIGlet logo
+# http://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=%0A
 function display_logo() {
     if [ ! -z $1 ]; then DELAY=$1; else DELAY=0.04; fi
-    echo -e " v$VERSION                                                                     ${N}"; sleep $DELAY
     echo -e "                                                                               ${N}"; sleep $DELAY
     echo -e " ██████╗ ██████╗  ██████╗ ██╗  ██╗██╗   ██╗${B}███╗   ██╗ ██████╗ ██████╗ ███████╗ ${N}"; sleep $DELAY
     echo -e " ██╔══██╗██╔══██╗██╔═══██╗╚██╗██╔╝╚██╗ ██╔╝${B}████╗  ██║██╔═══██╗██╔══██╗██╔════╝ ${N}"; sleep $DELAY
@@ -194,21 +144,22 @@ function display_logo() {
 }
 
 
+# Display disclaimer
 function display_disclaimer() {
     echo
     echo
     echo
     echo -e "${G}DISCLAIMER${N}"
     echo
-    echo -e "${D}This script is provided 'as is', without warranty of any kind."
-    echo -e "Be aware that this script is run at your own risk and while this script"
-    echo -e "has been written with the intention of minimising the potential for"
-    echo -e "unintended consequences, the owners, providers and contributers"
-    echo -e "can not be held responsible for any misuse or script problems."
-    echo -e "The owners, providers and contributers assume no liability for any"
-    echo -e "financial loss, loss in revenue, loss of data, damages, direct or"
-    echo -e "consequential that may result from the use of this script and"
-    echo -e "the software that is downloaded and installed with it.${N}"
+    echo -e "${D}This script is provided 'as is', without warranty of any kind.${N}"
+    echo -e "${D}Be aware that this script is run at your own risk and while this script${N}"
+    echo -e "${D}has been written with the intention of minimizing the potential for${N}"
+    echo -e "${D}unintended consequences, the owners, providers and contributors${N}"
+    echo -e "${D}can not be held responsible for any misuse or script problems.${N}"
+    echo -e "${D}The owners, providers and contributors assume no liability for any${N}"
+    echo -e "${D}financial loss, loss in revenue, loss of data, damages, direct or${N}"
+    echo -e "${D}consequential that may result from the use of this script and${N}"
+    echo -e "${D}the software that is downloaded and installed with it.${N}"
     echo
     if [[ $1 != "noselection" ]]; then
         echo -e "${D}Do you understand and accept the above terms and conditions? [Y/n]${N}"
@@ -219,7 +170,7 @@ function display_disclaimer() {
         else
             echo -e "${R}Sorry for not accepting the above terms and conditions.${N}"
             echo
-            echo -e "${Y}As a result this script has been abored.${N}"
+            echo -e "${Y}As a result this script has been aborted.${N}"
             echo
             echo
             exit 1     
@@ -228,16 +179,79 @@ function display_disclaimer() {
 }
 
 
+#########################################################################################################
+#                                    GENERIC VARIABLES                                                  #
+#########################################################################################################
+
+
+# Script variables
+VALIDCMD="false"                                    # Set value for valid command option check
+DATE_TIME="`date +%Y-%m-%d\ %H:%M:%S`"              # Set date and time variable
+FILE_DATE="`date +%Y%m%d_%H%M%S`"                   # Set date and time variable for use with filename (no spaces)
+ARG1=$1                                             # First argument
+ARG2=$2                                             # Second argument
+ARG3=$3                                             # Third argument
+ARG1=$(echo $ARG1 | sed -r 's/[-]//gi')             # Remove '-' characters from first argument
+ARG1=${ARG1,,}                                      # Force lower case for first argument
+
+if [ -f /bin/readlink ]; then
+    SCRIPT_FULL=$(readlink -nf $0)                  # Script real file name (not symbolic link) including full path
+else
+    SCRIPT_NAME="$(basename "$0")"                  # Script file name
+    SCRIPT_DIR="$(cd $(dirname "$0") && pwd)"       # Script location path
+    SCRIPT_FULL="$SCRIPT_DIR/$SCRIPT_NAME"          # Script file name including full path (could be symbolic link)
+    SCRIPT_FULL="$(stat $SCRIPT_FULL | grep File | sed 's/.*> //' | sed -e "s/'//g" | sed 's/ *File: *//')" # Get real filename
+fi
+SCRIPT_DIR=$(dirname $SCRIPT_FULL)                  # Script location path
+SCRIPT_NAME=$(basename $SCRIPT_FULL)                # Script file name without path
+SCRIPT_BASE="${SCRIPT_NAME%.*}"                     # Script file name without extension
+SCRIPT_EXT="${SCRIPT_NAME##*.}"                     # Script file extension
+CURRENT_DIR=$(pwd)                                  # Set current directory variable
+
+
+# Script colors config
+R='\033[0;31m'    # Red
+G='\033[0;32m'    # Green
+Y='\033[0;33m'    # Yellow
+B='\033[0;34m'    # Blue
+P='\033[0;35m'    # Purple
+C='\033[0;36m'    # Cyan
+W='\033[0;97m'    # White
+D='\033[0;37m'    # Grey (Default)
+N='\033[0m'       # No Color
+
+
+#########################################################################################################
+#                                    GENERIC FUNCTIONS                                                  #
+#########################################################################################################
+
+
+# Display script version
+function script_version() {
+    echo -e " v$VERSION ${N}"
+}
+
+
+# Clear screen
+function clear_screen() {
+    #clear
+    tput reset # Clear screen while maintaining scrollback
+}
+
+
+# Display help
 function display_help() {
-    echo -e "${G}                         ${NODE_NAME^^} MASTERNODE MANAGER${N}"        
-    echo -e "${D}───────────────────────────────────────────────────────────────────────────────${N}"
-    echo
-	echo -e "${G}This script will guide you through the installation, configuration${N}"
-    echo -e "${G}and management of your $NODE_NAME masternode${N}."
-    echo 
-    echo -e "${Y}To install and manage additional $NODE_NAME masternodes this script${N}"     
-    echo -e "${Y}will install and configure dupmn for $NODE_NAME when required.${N}" 
-    echo
+    if [[ ! "$1" == "noheader" ]] ; then
+        echo -e "${G}                         ${NODE_NAME^^} MASTERNODE MANAGER${N}"        
+        echo -e "${D}───────────────────────────────────────────────────────────────────────────────${N}"
+        echo
+        echo -e "${G}This script will guide you through the installation, configuration${N}"
+        echo -e "${G}and management of your $NODE_NAME masternode${N}."
+        echo 
+        echo -e "${Y}To install and manage additional $NODE_NAME masternodes this script${N}"     
+        echo -e "${Y}will install and configure dupmn for $NODE_NAME when required.${N}" 
+        echo
+    fi
     echo
 	echo -e "${D}Usage: $SCRIPT_NAME ${C}<option> [parameters]${N}"
 	echo
@@ -254,12 +268,13 @@ function display_help() {
     echo -e "${D}$SCRIPT_NAME ${C}showconf          ${D}: Display contents of $COIN_CONFIG${N}" 
     echo -e "${D}$SCRIPT_NAME ${C}replace strA strB ${D}: Replace 'string A' with 'string B' in $COIN_CONFIG${N}"
     echo -e "${D}$SCRIPT_NAME ${C}dupmn             ${D}: Install or update dupmn${N}"
-    echo -e "${D}$SCRIPT_NAME ${C}disclaimer        ${D}: Display disclamer${N}"
+    echo -e "${D}$SCRIPT_NAME ${C}disclaimer        ${D}: Display disclaimer${N}"
     echo -e "${D}$SCRIPT_NAME ${C}donation          ${D}: Show donation addresses${N}"
     echo
 }
 
 
+# Pre-installation checks
 function checks() {
     echo
     echo
@@ -268,6 +283,7 @@ function checks() {
     echo
     FAILED="0"
     
+    # Check if user is root
     if [[ $EUID -ne 0 ]]; then
         echo -e "${D}[${R}FAILED${D}] This script must be run as root.${N}"
         FAILED="1"
@@ -275,6 +291,7 @@ function checks() {
         echo -e "${D}[${G}  OK  ${D}] This script is run as root.${N}"       
     fi
 
+    # Check if a masternode has already been installed
     if [ -f $COIN_FOLDER/$COIN_CONFIG ]; then
         echo -e "${D}[${R}FAILED${D}] A $NODE_NAME masternode has already been installed.${N}"
         FAILED="1"
@@ -282,10 +299,18 @@ function checks() {
         echo -e "${D}[${G}  OK  ${D}] No $NODE_NAME masternode installed.${N}"
     fi
 
-    if [[ $(lsb_release -d) != $OSVERSION ]]; then
-        echo -e "[${R}FAILED${D}] You are not running Ubuntu 16.04 which is the prefered OS.${N}"
+    # Check Ubuntu version
+    PREFOS="false"
+    for OS in ${OSVERSIONS[@]}; do
+        if [[ $(lsb_release -rs) == $OS ]]; then
+            PREFOS="true"
+        fi
+    done
+    
+    if [[ $PREFOS == "false" ]]; then
+        echo -e "[${R}FAILED${D}] You running Ubuntu $(lsb_release -rs) which is not a preferred OS version (${OSVERSIONS[*]}).${N}"
     else
-        echo -e "${D}[${G}  OK  ${D}] You are running Ubuntu 16.04 which is the prefered OS.${N}"
+        echo -e "${D}[${G}  OK  ${D}] You are running a preferred Ubuntu OS.${N}"
     fi
     
     echo
@@ -293,7 +318,7 @@ function checks() {
     if [[ $FAILED -eq "0" ]]; then
         echo -e "${Y}Passed all pre-installation checks.${N}"
     else
-        echo -e "${R}One or more pre-installation checkes failed.${N}"
+        echo -e "${R}One or more pre-installation checks failed.${N}"
         echo
         echo -e "${D}Do you want to continue the installation anyway (not recommended)? [y/N]${N}"
         read  -s -n1 SELECTION
@@ -305,6 +330,7 @@ function checks() {
 }
 
 
+# Update system with latest updates
 function update_system() {
     echo
     echo
@@ -335,6 +361,7 @@ function update_system() {
 }
 
 
+# Install masternode dependencies
 function install_dependencies() {
     echo
     echo
@@ -373,6 +400,7 @@ function install_dependencies() {
 }
 
 
+# Install masternode binaries
 function install_binaries() {
     echo 
     echo
@@ -423,6 +451,7 @@ function install_binaries() {
 }
 
 
+# Update masternode binaries
 function update_binaries() {
     echo 
     echo
@@ -430,7 +459,7 @@ function update_binaries() {
     echo -e "${G}UPDATE ${NODE_NAME^^} MASTERNODE BINARIES${N}"
     echo
     if [ -f $DUPMN_CONFIG  ]; then
-        echo -e "${Y}Please make sure that all additional masternodes are stopped before and restared after the update."        
+        echo -e "${Y}Please make sure that all additional masternodes are stopped before and restarted after the update.${N}"        
         echo
     fi    
     echo -e "${D}Do you want to download and update $NODE_NAME masternode binaries? [Y/n]${N}"
@@ -505,6 +534,8 @@ function update_binaries() {
 }
 
 
+# Install fail2ban
+# https://www.fail2ban.org
 function install_fail2ban() {
     echo
     echo
@@ -530,6 +561,7 @@ function install_fail2ban() {
 }
 
 
+# Create swapfile
 function create_swapfile() {
     echo
     echo
@@ -542,7 +574,7 @@ function create_swapfile() {
 
         if [[ $SELECTION == @("Y"|"y"|"") ]]; then
             echo
-            echo -e "${D}Please enter swap size or press enter for 2GB swapfile. [2GB]"
+            echo -e "${D}Please enter swap size or press enter for 2GB swapfile. [2GB]${N}"
             read SWAP_SIZE
   
             if [[ "$SWAP_SIZE" == "" ]]; then
@@ -580,6 +612,7 @@ function create_swapfile() {
 }
 
 
+# Create massternode config file
 function create_config() {
     echo
     echo
@@ -610,6 +643,7 @@ function create_config() {
 }
 
 
+# Install masternode bootstrap
 function install_bootstrap() {
     echo
     echo
@@ -627,10 +661,10 @@ function install_bootstrap() {
     if [ -f $COIN_FOLDER/$CHAIN_ZIP ]; then
         CHAIN_DATE=$(date -r $COIN_FOLDER/$CHAIN_ZIP '+%Y-%m-%d %H:%M:%S')  # Get bootstrap file date
         echo 
-        echo -e "${D}A previously downloaded boostrap file ($CHAIN_ZIP) was found on disk, dated $CHAIN_DATE:${N}"
+        echo -e "${D}A previously downloaded bootstrap file ($CHAIN_ZIP) was found on disk, dated $CHAIN_DATE:${N}"
         ls -lh $COIN_FOLDER/$CHAIN_ZIP
         echo
-        echo -e "${D}Would you like to ${C}D${D}elete or ${C}U${D}se the file on disk? [d/U]"
+        echo -e "${D}Would you like to ${C}D${D}elete or ${C}U${D}se the file on disk? [d/U]${N}"
         read -s -n1 SELECTION
         
         case $SELECTION in
@@ -711,29 +745,15 @@ function install_bootstrap() {
             fi
         fi
         
-        if [ -d $COIN_FOLDER/blocks ]; then 
-            echo
-            echo -e "${D}Deleting folder $COIN_FOLDER/blocks...${N}"
-            /bin/rm -rf $COIN_FOLDER/blocks
-        fi
+        # Delete blockchain files and folders
+        for ITEM in ${CHAIN_DATA[@]}; do
+            if [ -d $COIN_FOLDER/$ITEM ]; then
+                echo
+                echo -e "${D}Deleting $COIN_FOLDER/$ITEM...${N}"
+                /bin/rm -rf $COIN_FOLDER/$ITEM
+            fi
+        done
         
-        if [ -d $COIN_FOLDER/chainstate ]; then
-            echo
-            echo -e "${D}Deleting folder $COIN_FOLDER/chainstate...${N}"
-            /bin/rm -rf $COIN_FOLDER/chainstate
-        fi
-
-        if [ -d $COIN_FOLDER/evodb ]; then 
-            echo
-            echo -e "${D}Deleting folder $COIN_FOLDER/evodb...${N}"
-            /bin/rm -rf $COIN_FOLDER/evodb
-        fi
-
-        if [ -f $COIN_FOLDER/peers.dat ]; then 
-            echo
-            echo -e "${D}Deleting file $COIN_FOLDER/peers.dat...${N}"
-            /bin/rm -rf $COIN_FOLDER/peers.dat
-        fi             
         echo
         echo
         echo
@@ -778,6 +798,7 @@ function install_bootstrap() {
 }
 
 
+# Create masternode bootstrap from installed masternode
 function create_bootstrap() {
     echo
     echo
@@ -803,10 +824,10 @@ function create_bootstrap() {
     if [ -f $COIN_FOLDER/$CHAIN_ZIP ]; then
         CHAIN_DATE=$(date -r $COIN_FOLDER/$CHAIN_ZIP '+%Y-%m-%d %H:%M:%S')  # Get bootstrap file date
         echo 
-        echo -e "${D}A previously downloaded boostrap file was found on disk, dated $CHAIN_DATE.${N}"
+        echo -e "${D}A previously downloaded bootstrap file was found on disk, dated $CHAIN_DATE.${N}"
         ls -lh $COIN_FOLDER/$CHAIN_ZIP
         echo
-        echo -e "${D}Would you like to ${C}D${D}elete the file or ${C}Q${D}uit? [d/Q]"
+        echo -e "${D}Would you like to ${C}D${D}elete the file or ${C}Q${D}uit? [d/Q]${N}"
         read -s -n1 SELECTION
         
         case $SELECTION in
@@ -884,6 +905,7 @@ function create_bootstrap() {
 }
 
 
+# Get masternode local IP address
 function get_localip() {
     echo
     echo
@@ -933,6 +955,7 @@ function get_localip() {
 }
 
 
+# Get masternode external IP address
 function get_externalip() {
     echo
     echo
@@ -1038,6 +1061,7 @@ function get_externalip() {
 }
 
 
+# Create or read masternode private key
 function create_privkey() {
     echo
     echo
@@ -1122,91 +1146,7 @@ function create_privkey() {
 } 
 
 
-function create_blskey() {
-    echo
-    echo
-    echo  
-    echo -e "${G}GENERATE MASTERNODE BLS PRIVATE KEY${N}"
-    echo
-    echo -e "${D}To generate a bls private key go to your Windows Wallet > Tools > Debug Console and type 'bls generate'.${N}"
-    echo -e "${D}If you do not paste a bls private key below this script will try to generate it for you.${N}"
-    echo
-    echo -e "${D}Please enter your bls private key below, or press enter to generate one:${N}"
-    read -e COINBLS
-    if [[ -z "$COINKEY" ]]; then
-    
-        if [ -f "$COIN_FOLDER/$COIN_PID" ]; then
-            ps -ef | grep $(/bin/cat $COIN_FOLDER/$COIN_PID) | grep $COIN_DAEMON | grep -v grep >/dev/null 2>&1
-            EXITCODE="$?"
-            if [[ "$EXITCODE" -eq "0" ]]; then
-                STARTED="yes"
-            else
-                STARTED="no"
-            fi
-        else
-            STARTED="no"
-        fi
-    
-        if [ "$STARTED" == "no" ]; then
-            echo -e "${Y}Starting masternode daemon...${N}"
-            echo
-            $COIN_DAEMON -daemon >/dev/null 2>&1
-        fi
-        echo
-        echo -e "${D}Checking every 5 sec. for approximately 2 min. to see if a private key can be generated.${N}"
-        ERRCOUNT="0"
-        EXITCODE="1"
-        /usr/bin/tput sc
-
-        while [ "$EXITCODE" -ne "0" ]; do
-            STATUS=$($COIN_CLI masternode status 2>&1 >/dev/null)
-            echo -ne "$STATUS"
-            COINBLS=$($COIN_CLI bls generate 2>&1 >/dev/null)
-            EXITCODE="$?"
-            ((ERRCOUNT++))
-            if [ $ERRCOUNT -ge 24 ]; then
-                EXITCODE="-1000"
-                break
-            fi
-            echo -ne "."; sleep 1; echo -ne "."; sleep 1;echo -ne "."; sleep 1;echo -ne "."; sleep 1;echo -ne "."; sleep 1; /usr/bin/tput rc; /usr/bin/tput ed;
-        done
-
-        /usr/bin/tput rc; /usr/bin/tput ed;
-        if  [ "$EXITCODE" -eq "-1000" ]; then
-                echo -e "${R}Failed to generate a bls private key in time.${N}"
-                echo -e "${D}For now a dummy key will be added to config file $COIN_CONFIG.${N}"
-                echo -e "${D}Please replace the dummy key with a valid bls private key after installation.${N}"
-                COINBLS=$BLS_DUMMY
-         else
-            echo -e "${D}Masternode bls private key generated.${N}"         
-            #COINBLS=$($COIN_CLI bls generate)
-            echo "$COINBLS"
-        fi
-        echo
-        if [ "$STARTED" == "no" ]; then
-            echo -e "${D}Stopping masternode daemon...${N}"
-            echo
-            $COIN_CLI stop >/dev/null 2>&1
-        fi
-    fi
-    
-    BLS_SEC_TMP=$(echo "$COINBLS" | grep secret)                            # Grep secret key string
-    BLS_SEC_TMP=${BLS_SEC_TMP//[[:space:]]/}                                # Removing white spaces
-    BLS_SEC=$(echo $BLS_SEC_TMP | sed -e 's#.*:\"\(\)#\1#' -e "s/\",//")    # Extract secret key from string
-
-    BLS_PUB_TMP=$(echo "$COINBLS" | grep secret)                            # Grep public key string
-    BLS_PUB_TMP=${BLS_PUB_TMP//[[:space:]]/}                                # Removing white spaces
-    BLS_PUB=$(echo $BLS_PUB_TMP | sed -e 's#.*:\"\(\)#\1#' -e "s/\",//")    # Extract public key from string
-    
-    echo
-    echo -e "${Y}Using masternode bls private key (masternodeblsprivkey): ${P}$BLS_SEC${N}"
-    echo
-    echo -e "${D}Please keep both BLS keys in a save place for later usage.${N}"
-    echo -e "${D}- BLS Sectret Key: $BLS_SEC${N}"
-    echo -e "${D}- BLS Public Key : $BLS_SEC${N}"
-}
-
-
+# Update masternode config file
 function update_config() {
     echo
     echo
@@ -1234,6 +1174,7 @@ function update_config() {
 }
 
 
+# Add addnodes to masternode config file
 function download_addnodes() {
     echo
     echo
@@ -1263,6 +1204,7 @@ function download_addnodes() {
 }
 
 
+# Enable firewall
 function enable_firewall() {
     echo
     echo
@@ -1286,6 +1228,7 @@ function enable_firewall() {
 }
 
 
+# Create systemd unit file
 function configure_systemd() {
     echo
     echo
@@ -1326,12 +1269,13 @@ function configure_systemd() {
     systemctl daemon-reload
     echo -e "${D}Enable masternode systemd unit $COIN_SERVICE...${N}"
     sleep 0.5
-    echo
     systemctl enable $COIN_SERVICE # >/dev/null 2>&1
+    echo
     echo -e "${Y}Masternode systemd unit file $COIN_SERVICE created and enabled.${N}"
 }
 
 
+# Start masternode
 function node_start() {
     if [[ ! "$1" == "noheader" ]] ; then
         echo
@@ -1372,6 +1316,7 @@ function node_start() {
 }
 
 
+# Stop masternode
 function node_stop() {
     if [[ ! "$1" == "noheader" ]] ; then
         echo
@@ -1398,6 +1343,7 @@ function node_stop() {
 }
 
 
+# Display masternode status
 function node_status() {
     if [[ ! "$1" == "noheader" ]] ; then
         echo
@@ -1438,6 +1384,7 @@ function node_status() {
 }
 
 
+# Monitor masternode compact (displayed on single line)
 function monitor_small() {
     if [[ ! "$1" == "noheader" ]] ; then
         echo
@@ -1496,11 +1443,12 @@ function monitor_small() {
 }
     
     
+# Monitor masternode verbose (full page)
 function monitor_large {
     #/usr/bin/tput sc #Save the cursor position, not used
     if [ ! -z $ARG2 ]; then SLEEP=$ARG2; else SLEEP=5; fi
     while  [ -z "$input" ]; do
-        tput clear || exit 2; # Clear screen.
+        tput clear || exit 2; # Clear screen while maintaining scrollback
         CMD="
             echo -e '${D}───────────────────────────────────────────────────────────────────────────────${N}'
             echo -e '${G}${NODE_NAME^^} MASTERNODE MONITORING${N}'           
@@ -1536,7 +1484,7 @@ function monitor_large {
             echo
             echo -e '${D}This screen will refresh every $SLEEP seconds...${N}'
             echo
-            echo -e '${Y}Press a key to Exit...${D}'
+            echo -e '${Y}Press a key to stop monitoring.${D}'
             echo"
         bash -ic "$CMD";
         # Exit if a key or ^C is pressed or when an error occurs.
@@ -1548,6 +1496,7 @@ function monitor_large {
 } 
  
  
+# Display masternode config file contents
 function showconf() { 
     if [[ ! "$1" == "noheader" ]] ; then
         echo
@@ -1566,6 +1515,8 @@ function showconf() {
 } 
 
 
+# Install dupmn
+# https://github.com/neo3587/dupmn
 function install_dupmn () {
     echo
     echo
@@ -1629,6 +1580,7 @@ function install_dupmn () {
 }
 
 
+# Create dupmn config file
 function create_dupmn_config() {
     echo
     echo
@@ -1652,6 +1604,7 @@ function create_dupmn_config() {
 }  
 
 
+# Load dumpn config file
 function load_dupmn_profile() {
     echo
     echo
@@ -1672,6 +1625,7 @@ function load_dupmn_profile() {
 }
 
 
+# Install additional masternode using dupmn
 function install_additional_node () {
     echo 
     echo
@@ -1680,7 +1634,7 @@ function install_additional_node () {
     echo
     echo -e "${D}A $NODE_NAME masternode has already been installed on this system.${N}"
     echo
-    echo -e "${Y}If you continue, an additial $NODE_NAME masternode will be installed using dupmn.${N}"
+    echo -e "${Y}If you continue, an additional $NODE_NAME masternode will be installed using dupmn.${N}"
     echo -e "${Y}With dupmn you can manage all your additionally installed $NODE_NAME masternodes.${N}"
     echo -e "${Y}If not yet installed, dupmn will be installed and configured in advance.${N}"
     echo
@@ -1699,13 +1653,13 @@ function install_additional_node () {
             echo
             echo -e "${G}BOOTSTRAP FILE FOUND${N}"
             echo
-            echo -e "${D}A previously downloaded/created boostrap file was found in directory $COIN_FOLDER:${N}"
+            echo -e "${D}A previously downloaded/created bootstrap file was found in directory $COIN_FOLDER:${N}"
             ls -lh $COIN_FOLDER/$CHAIN_ZIP
             echo
             echo -e "${Y}Please be aware that dupmn makes a complete copy of directory $COIN_FOLDER${N}"
-            echo -e "${Y}including any previously downloaded files in that directory (e.g. boostrap $CHAIN_ZIP).${N}"
+            echo -e "${Y}including any previously downloaded files in that directory (e.g. bootstrap $CHAIN_ZIP).${N}"
             echo
-            echo -e "${D}Would you like to temporarily ${C}M${D}ove the file, ${C}D${D}elete the file, ${C}C${D}ontinue or ${C}Q${D}uit? [M/d/c/q]"
+            echo -e "${D}Would you like to temporarily ${C}M${D}ove the file, ${C}D${D}elete the file, ${C}C${D}ontinue or ${C}Q${D}uit? [M/d/c/q]${N}"
             read -s -n1 SELECTION
             
             case $SELECTION in
@@ -1739,7 +1693,7 @@ function install_additional_node () {
 
         if [ $MOVE == yes ]; then
             echo
-            echo -e "${D}Moving bootrap to its original location...${N}"
+            echo -e "${D}Moving bootstrap to its original location...${N}"
             echo
             mv $COIN_FOLDER/../$CHAIN_ZIP $COIN_FOLDER/$CHAIN_ZIP
         fi
@@ -1761,8 +1715,8 @@ function install_additional_node () {
 }
             
 
+# Display installation summary for main (initial) masternode
 function installation_summary() {
-    echo
     echo
     echo -e "${G}MAIN MASTERNODE INSTALLATION SUMMARY${N}"
     echo
@@ -1770,12 +1724,12 @@ function installation_summary() {
         # If an IP address has not been selected read the config file
         if [ -f $COIN_FOLDER/$COIN_CONFIG ]; then
             CONFCONTENTS=$(cat $COIN_FOLDER/$COIN_CONFIG)
-            NODE_IP=$(echo "$CONFCONTENTS" | grep bind | sed 's/.*\[\([^]]*\)\].*/\1/g')
+            NODE_IP=$(echo "$CONFCONTENTS" | grep ^bind | sed 's/.*\[\([^]]*\)\].*/\1/g')
             EXT_IP=$(echo "$CONFCONTENTS" | grep externalip | sed 's/.*\[\([^]]*\)\].*/\1/g')
-            COIN_PORT=$(echo "$CONFCONTENTS" | grep port | grep -v rpc | sed -e 's#.*=\(\)#\1#')
+            COIN_PORT=$(echo "$CONFCONTENTS" | grep ^port | sed -e 's#.*=\(\)#\1#')
             COINKEY=$(echo "$CONFCONTENTS" | grep masternodeprivkey | sed -e 's#.*=\(\)#\1#')
         else
-            echo -e "${R}No $COIN_NAME masternode installation found (in default directory $COIN_FOLDER).${N}"   
+            echo -e "${R}No $NODE_NAME masternode installation found in default directory $COIN_FOLDER.${N}"   
             echo
         fi
     fi
@@ -1825,6 +1779,7 @@ function installation_summary() {
 }
 
 
+# Display dupmn summary
 function dupmn_summary() {
     echo
     echo -e "${G}INFORMATION FOR ADDITIONAL MASTERNODE INSTALLATIONS${N}"
@@ -1842,10 +1797,10 @@ function dupmn_summary() {
     if [ ! -z "$WWW_DUPMN1"  ]; then echo -e "${D}- Dupmn Main website        : ${Y}$WWW_DUPMN1${N}" ; fi 
     if [ ! -z "$WWW_DUPMN2"  ]; then echo -e "${D}- Dupmn wiki FAQ            : ${Y}$WWW_DUPMN2${N}" ; fi 
     if [ ! -z "$WWW_DUPMN3"  ]; then echo -e "${D}- Dupmn wiki commands       : ${Y}$WWW_DUPMN3${N}" ; fi 
-    echo
 }
 
 
+# Replace a sting in the masternode config file
 function replace() {
     echo
     echo
@@ -1854,13 +1809,13 @@ function replace() {
     echo
     if [[ -z "$ARG2" ]] || [[ -z "$ARG3" ]]
     then
-        KEY="Private Key"
+        KEY="PrivateKey"
         KEYREV=$(echo $KEY | rev)
-        echo -e "${D}Please provide search and replace variable value.${N}"
+        echo -e "${D}Please provide both search and replace variables.${N}"
         echo
         echo -e "${D}Example:${N}" 
-        echo -e "${C}$SCRIPT_NAME replace ${D} ${P}12.34.56.78 ${D}98.76.54.32${N}"
-        echo -e "${C}$SCRIPT_NAME replace ${D} ${P}'$KEY' ${D}'$KEYREV'${N}"
+        echo -e "${C}$SCRIPT_NAME replace ${P}'12.34.56.78' '98.76.54.32'${N}"
+        echo -e "${C}$SCRIPT_NAME replace ${P}'$KEY' '$KEYREV'${N}"
         echo
         echo
         exit 1
@@ -1868,11 +1823,11 @@ function replace() {
         search=$ARG2
         replace=$ARG3
 
-        echo -e "${D}Create backup copy of $COIN_CONFIG..."
+        echo -e "${D}Create backup copy of $COIN_CONFIG...${N}"
         COIN_CONFIG_DATE=$(date -r $COIN_FOLDER/$COIN_CONFIG '+%Y%m%d_%H%M%S')             # Get file date
         cp $COIN_FOLDER/$COIN_CONFIG $COIN_FOLDER/$COIN_CONFIG.$COIN_CONFIG_DATE
         echo
-        echo -e "${D}Replace '${search}' by '${replace}' in $COIN_CONFIG..."
+        echo -e "${D}Replace '${search}' by '${replace}' in $COIN_CONFIG...${N}"
         sed -i "s/${search}/${replace}/g" $COIN_FOLDER/$COIN_CONFIG
     fi
     
@@ -1880,6 +1835,7 @@ function replace() {
 }
 
 
+# Extract function
 function extract() {
     FILE=$1                     # Compressed file name
     DIR=$2                      # Extraction directory
@@ -1918,6 +1874,7 @@ function extract() {
 }     
 
 
+# Display donation information
 function donation() {
     echo
     echo
@@ -1933,20 +1890,31 @@ function donation() {
     echo -e "${Y}$DONADDR3${N}" 
     echo -e "${Y}$DONADDR4${N}" 
     echo
-    echo
-    echo -e "${D}Have a nice day!${N}"
+    echo -e "${G}Have a nice day!${N}"
     echo
 }   
 
 
+#########################################################################################################
+#                                    CALL FUNCTIONS                                                     #
+#########################################################################################################
+
+
+# Change to script folder
+cd $SCRIPT_DIR >/dev/null 2>&1 
+
+
 if [[ $ARG1 == @("help"|) ]]; then
+    VALIDCMD="true"
     clear_screen
+    script_version
     display_logo
     display_help
 fi
 
 
 if [[ $ARG1 == "summary" ]]; then
+    VALIDCMD="true"
     clear_screen
     display_logo 0
     installation_summary 
@@ -1954,6 +1922,7 @@ fi
 
 
 if [[ $ARG1 == "install" ]]; then
+    VALIDCMD="true"
     if [ ! -f $COIN_FOLDER/$COIN_CONFIG ]; then
         clear_screen
         display_logo
@@ -1986,6 +1955,7 @@ fi
 
 
 if [[ $ARG1 == "dupmn" ]]; then
+    VALIDCMD="true"
     install_dupmn
     create_dupmn_config
     load_dupmn_profile
@@ -1994,31 +1964,51 @@ fi
 
 
 if [[ $ARG1 == "disclaimer"       ]]; then
+    VALIDCMD="true"
     clear_screen
     display_logo
     display_disclaimer noselection
 fi
 
-if [[ $ARG1 = "donation"           ]]; then
+
+if [[ $ARG1 = "donation" ]] || [[ $ARG1 = "donate" ]]; then
+    VALIDCMD="true"
     clear_screen
     display_logo
     donation                     
 fi
 
-if [[ $ARG1 == "start"            ]]; then node_start                     ; fi
-if [[ $ARG1 == "stop"             ]]; then node_stop                      ; fi
-if [[ $ARG1 == "status"           ]]; then node_status                    ; fi
-if [[ $ARG1 == "showconf"         ]]; then showconf                       ; fi
-if [[ $ARG1 == "bootstrap"        ]]; then install_bootstrap              ; fi
-if [[ $ARG1 == "createbootstrap"  ]]; then create_bootstrap               ; fi
-if [[ $ARG1 == "monitor"          ]]; then monitor_large                  ; fi
-if [[ $ARG1 == "replace"          ]]; then replace                        ; fi
-if [[ $ARG1 == "update"           ]]; then update_binaries                ; fi
 
-if [[ $ARG1 == "genkey"           ]]; then create_privkey                 ; fi
-if [[ $ARG1 == "extract"          ]]; then extract $ARG2 $ARG3            ; fi                                                                              
+if [[ $ARG1 == "start"            ]]; then VALIDCMD="true"; node_start          ; fi
+if [[ $ARG1 == "stop"             ]]; then VALIDCMD="true"; node_stop           ; fi
+if [[ $ARG1 == "status"           ]]; then VALIDCMD="true"; node_status         ; fi
+if [[ $ARG1 == "showconf"         ]]; then VALIDCMD="true"; showconf            ; fi
+if [[ $ARG1 == "bootstrap"        ]]; then VALIDCMD="true"; install_bootstrap   ; fi
+if [[ $ARG1 == "createbootstrap"  ]]; then VALIDCMD="true"; create_bootstrap    ; fi
+if [[ $ARG1 == "monitor"          ]]; then VALIDCMD="true"; monitor_large       ; fi
+if [[ $ARG1 == "replace"          ]]; then VALIDCMD="true"; replace             ; fi
+if [[ $ARG1 == "update"           ]]; then VALIDCMD="true"; update_binaries     ; fi
+
+
+# Development options
+if [[ $ARG1 == "check"            ]]; then VALIDCMD="true"; checks              ; fi
+if [[ $ARG1 == "genkey"           ]]; then VALIDCMD="true"; create_privkey      ; fi
+if [[ $ARG1 == "extract"          ]]; then VALIDCMD="true"; extract $ARG2 $ARG3 ; fi                                                                              
+if [[ $ARG1 == "version"          ]]; then VALIDCMD="true"; script_version      ; fi  
+if [[ $ARG1 == "clear"            ]]; then VALIDCMD="true"; clear_screen        ; fi 
+
 
 # Change to originating folder
 cd $CURRENT_DIR >/dev/null 2>&1
 
-exit 0
+
+# Invalid option provided
+if [[ $VALIDCMD == "false" ]]; then
+    display_help noheader
+    echo
+    echo -e "${R}You entered an invalid option. Please try again.${N}" 
+    echo
+    exit 1
+else
+    exit 0
+fi
