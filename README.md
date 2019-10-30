@@ -1,18 +1,18 @@
 <pre>
 
- ██████╗ ██████╗  ██████╗ ██╗  ██╗██╗   ██╗███╗   ██╗ ██████╗ ██████╗ ███████╗
- ██╔══██╗██╔══██╗██╔═══██╗╚██╗██╔╝╚██╗ ██╔╝████╗  ██║██╔═══██╗██╔══██╗██╔════╝
- ██████╔╝██████╔╝██║   ██║ ╚███╔╝  ╚████╔╝ ██╔██╗ ██║██║   ██║██║  ██║█████╗
- ██╔═══╝ ██╔══██╗██║   ██║ ██╔██╗   ╚██╔╝  ██║╚██╗██║██║   ██║██║  ██║██╔══╝
- ██║     ██║  ██║╚██████╔╝██╔╝ ██╗   ██║   ██║ ╚████║╚██████╔╝██████╔╝███████╗
- ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═══╝ ╚═════╝ ╚═════╝ ╚══════╝
+  ██████╗ ██████╗  ██████╗ ██╗  ██╗██╗   ██╗███╗   ██╗ ██████╗ ██████╗ ███████╗
+  ██╔══██╗██╔══██╗██╔═══██╗╚██╗██╔╝╚██╗ ██╔╝████╗  ██║██╔═══██╗██╔══██╗██╔════╝
+  ██████╔╝██████╔╝██║   ██║ ╚███╔╝  ╚████╔╝ ██╔██╗ ██║██║   ██║██║  ██║█████╗
+  ██╔═══╝ ██╔══██╗██║   ██║ ██╔██╗   ╚██╔╝  ██║╚██╗██║██║   ██║██║  ██║██╔══╝
+  ██║     ██║  ██║╚██████╔╝██╔╝ ██╗   ██║   ██║ ╚████║╚██████╔╝██████╔╝███████╗
+  ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═══╝ ╚═════╝ ╚═════╝ ╚══════╝
 
-                        A Proof Of Stake cryptocurrency
-                         focused on internet services
-                            anonymity and security
+                         A Proof Of Stake cryptocurrency
+                          focused on internet services
+                             anonymity and security
 
 ───────────────────────────────────────────────────────────────────────────────
-                         PROXYNODE MASTERNODE MANAGER
+                          PROXYNODE MASTERNODE MANAGER
 ───────────────────────────────────────────────────────────────────────────────
 
 This script will guide you through the installation, configuration
@@ -39,6 +39,7 @@ proxynode_masternode_manager.sh replace strA strB : Replace 'string A' with 'str
 proxynode_masternode_manager.sh dupmn             : Install or update dupmn
 proxynode_masternode_manager.sh disclaimer        : Display disclaimer
 proxynode_masternode_manager.sh donation          : Show donation addresses
+
 
 
 
